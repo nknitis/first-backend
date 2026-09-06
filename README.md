@@ -1,93 +1,55 @@
 # Cypherock MTA Assignment
 
-Client-server project scaffold for the Cypherock MTA/COT assignment.
+Client-server implementation workspace for the Cypherock MTA/COT assignment.
 
-## Architecture
+## Stack
+
+- Client: JavaScript + Node.js
+- Server: C++
+- Network: TCP
+- Serialization: Protocol Buffers
+- Crypto: Node `crypto` on the client; the required C++ crypto stack will be wired into the cryptographic phase
+
+## Project flow
 
 ```text
-Node.js + TypeScript Client
-        |
-        | TCP + length-prefixed Protocol Buffers
-        v
+JavaScript Client
+      |
+      | TCP + Protocol Buffers
+      v
 C++ Server
-        |
-        v
-Base OT -> Correlated OT -> MTA
-        |
-        v
+      |
+      v
+COT
+      |
+      v
+MTA
+      |
+      v
 U + V = x * y
 ```
 
-## Repository structure
+## Current implementation stages
 
-```text
-proto/cot.proto
-client/
-  src/main.ts
-  src/Client.ts
-  src/Crypto.ts
-  src/Protocol.ts
-  src/COT.ts
-server/
-  include/Server.h
-  include/Crypto.h
-  include/COT.h
-  src/main.cpp
-  src/Server.cpp
-  src/Crypto.cpp
-  src/COT.cpp
-  CMakeLists.txt
-```
+1. Generate a random 32-byte multiplicative share on each side.
+2. Establish the TCP connection and exchange protobuf messages.
+3. Demonstrate the A.3.3 MTA arithmetic relation.
+4. Implement and test the actual A.3.1 Base OT -> A.3.2 COT -> A.3.3 MTA cryptographic protocol.
 
-## Important
+The current `client/src/COT.js` is an **arithmetic demonstration**, not a cryptographic COT implementation. It must not be described as the final secure solution.
 
-The networking, 32-byte random-share generation, protobuf schema, build setup, and COT integration points are included.
-
-The actual cryptographic COT implementation is intentionally marked as incomplete. The assignment requires the A.3.1 Base OT, A.3.2 COT, and A.3.3 MTA construction using the specified secp256k1/Trezor crypto stack. The placeholder must be replaced and independently tested before submission.
-
-The arithmetic target is:
-
-```text
-x * y = U + V
-```
-
-For each bit `yi` of `y`, A.3.3 defines:
-
-```text
-m0 = Ui
-m1 = Ui + x
-mc = Ui + yi*x
-```
-
-and then computes weighted additive shares:
-
-```text
-U = -sum(2^i * Ui)
-V =  sum(2^i * mc)
-```
-
-so that `U + V = x*y`.
-
-## Client
+## Run client
 
 ```bash
 cd client
 npm install
-npm run build
 npm start
 ```
 
 ## Server
 
-Dependencies: CMake, C++17 compiler, Boost.System and OpenSSL. Nanopb/protobuf generation and the assignment's Trezor crypto dependency still need to be wired into the final cryptographic implementation.
+The server source uses C++ and Boost.Asio. Build it with the C++ compiler and the Boost/OpenSSL libraries installed on your system. No CMake is used in this workspace.
 
-```bash
-cd server
-cmake -S . -B build
-cmake --build build
-./build/cypherock_server
-```
+## Important
 
-## Do not submit the current scaffold as the final cryptographic solution
-
-The COT placeholder deliberately fails instead of pretending that a local message selection is oblivious transfer. Complete and test the cryptographic protocol before using this repository for the assessment.
+The assignment requires the actual COT algorithms from Appendix A.3.1, A.3.2 and A.3.3, plus the specified C++ crypto/protobuf stack. Those cryptographic parts need independent testing before submission.
