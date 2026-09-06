@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package cypherock.mta;
+
+message ShareRequest {
+  bytes multiplicative_share = 1; // 32 bytes
+}
+
+message ShareResponse {
+  bytes multiplicative_share = 1; // 32 bytes
+  bytes additive_share = 2;       // 32 bytes / protocol scalar representation
+  bool verified = 3;
+}
+
+message ProtocolMessage {
+  enum Type {
+    UNKNOWN = 0;
+    SHARE_REQUEST = 1;
+    SHARE_RESPONSE = 2;
+    COT_MESSAGE = 3;
+    MTA_RESULT = 4;
+  }
+
+  Type type = 1;
+  uint32 version = 2;
+  bytes payload = 3;
+}
